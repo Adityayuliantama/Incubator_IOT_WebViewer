@@ -74,7 +74,8 @@
         xmlhttp.open("GET", url, true);
         xmlhttp.send();
     }
-
+    
+    /// method for submit api credential when the button is clicked
     function submitApiCredential() {
         document.getElementById("CameraSource").pause();
         var ApiCredentialValue = document.getElementById('ApiCredentialInput').value;
@@ -84,6 +85,7 @@
         localStorage.setItem("ChannelValue", ChannelValue);
     }
 
+    /// method for resetting all api credential when the button is clicked
     function resetApiCredential() {
         document.getElementById("CameraSource").pause();
         localStorage.removeItem("ApiCredential");
@@ -94,6 +96,8 @@
         document.getElementById("HeatIndexValue").innerHTML = "-";
         document.getElementById("NewbornHeartbeatValue").innerHTML = "-" + " bpm";
         document.getElementById("NewbornTemperatureValue").innerHTML = "-" + "°C";
+        document.getElementById("CameraSource").src = "";
+        document.getElementById("CameraVideoPlayer").load();
     }
     setInterval(getData, 2000); // Call the getData function every 5 seconds
 
