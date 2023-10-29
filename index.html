@@ -1,0 +1,264 @@
+<script>
+    /// Method for getting api Data every x second
+    function getData() {
+        var test = false;
+
+        var ApiCredentialValue = localStorage.getItem("ApiCredential");
+        var ChannelValue = localStorage.getItem("ChannelValue");
+
+
+        if (test) {
+            ApiCredentialValue = "PRLSYB6BHUZVB0F3";
+            ChannelValue = "2211181";
+        }
+
+        // check wheteher the api credential and channel value is already saved locally
+        if (ApiCredentialValue == null || ChannelValue == null)
+            return;
+
+        var xmlhttp = new XMLHttpRequest();
+
+        //url of the API
+        var url = "https://api.thingspeak.com/channels/" + ChannelValue + "/feeds/last.json?api_key=" + ApiCredentialValue + "&results=2";
+
+
+        xmlhttp.onreadystatechange = function () {
+
+            var statusDoc = document.getElementById("CredentialStatus");
+
+            //if the api call is success
+            if (this.readyState == 4 && this.status == 200) {
+                var data = JSON.parse(this.responseText);
+
+                //set the value to front document
+                document.getElementById("TemperatureCelciusValue").innerHTML = parseFloat(data.field1).toFixed(2) + " °C";
+                document.getElementById("TemperatureFarenheitValue").innerHTML = parseFloat(data.field2).toFixed(2) + " °F";
+                document.getElementById("HumidityValue").innerHTML = parseFloat(data.field3).toFixed(2) + "%";
+                document.getElementById("HeatIndexValue").innerHTML = parseFloat(data.field4).toFixed(2);
+                document.getElementById("NewbornHeartbeatValue").innerHTML = parseFloat(data.field5).toFixed() + " bpm";
+                document.getElementById("NewbornTemperatureValue").innerHTML = parseFloat(data.field6).toFixed(2) + "°C";
+
+                //set status connected
+                statusDoc.style.backgroundColor = "rgb(28, 206, 132)";
+                statusDoc.innerHTML = "Status : Connected";
+
+                //video source url
+                var videoSourceUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+                if (data.field7 != null)
+                    videoSourceUrl = data.field7;
+
+                // check whether the video url of the video is same
+                if (document.getElementById("CameraSource").src == videoSourceUrl)
+                    return;
+
+                // set video url and play it
+                document.getElementById("CameraSource").src = videoSourceUrl;
+                document.getElementById("CameraVideoPlayer").load();
+                document.getElementById("CameraVideoPlayer").play();
+
+                return;
+            }
+
+
+            document.getElementById("TemperatureCelciusValue").innerHTML = "-" + " °C";
+            document.getElementById("TemperatureFarenheitValue").innerHTML = "-" + " °F";
+            document.getElementById("HumidityValue").innerHTML = "-" + "%";
+            document.getElementById("HeatIndexValue").innerHTML = "-";
+            document.getElementById("NewbornHeartbeatValue").innerHTML = "-" + " bpm";
+            document.getElementById("NewbornTemperatureValue").innerHTML = "-" + "°C";
+            statusDoc.style.backgroundColor = "rgb(39, 63, 197)";
+            statusDoc.innerHTML = "Status : Not Connected";
+
+        };
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+    }
+
+    function submitApiCredential() {
+        document.getElementById("CameraSource").pause();
+        var ApiCredentialValue = document.getElementById('ApiCredentialInput').value;
+        var ChannelValue = document.getElementById('ChannelNumberInput').value;
+
+        localStorage.setItem("ApiCredential", ApiCredentialValue);
+        localStorage.setItem("ChannelValue", ChannelValue);
+    }
+
+    function resetApiCredential() {
+        document.getElementById("CameraSource").pause();
+        localStorage.removeItem("ApiCredential");
+        localStorage.removeItem("ChannelValue");
+        document.getElementById("TemperatureCelciusValue").innerHTML = "-" + " °C";
+        document.getElementById("TemperatureFarenheitValue").innerHTML = "-" + " °F";
+        document.getElementById("HumidityValue").innerHTML = "-" + "%";
+        document.getElementById("HeatIndexValue").innerHTML = "-";
+        document.getElementById("NewbornHeartbeatValue").innerHTML = "-" + " bpm";
+        document.getElementById("NewbornTemperatureValue").innerHTML = "-" + "°C";
+    }
+    setInterval(getData, 2000); // Call the getData function every 5 seconds
+
+</script>
+
+<body>
+    <div class="DashboardDevices">
+        <div class="CredentialSection" style="width: 381px; height: 300px; right: 15%; top: 762px; position: absolute">
+            <div class="Rectangle4"
+                style="width: 381px; height: 300px; left: 0px; top: 0px; position: absolute; background: #F7F1FF; border-radius: 25px;box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);">
+                <div class="ApiCredential"
+                    style="width: 297px; height: 48px; left: 42px; top: 38px; position: absolute">
+                    <div class="Rectangle23"
+                        style="width: 297px; height: 48px; left: 0px; top: 0px; position: absolute; background: #FBFBFB; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25) inset; border-radius: 19px">
+                    </div>
+                    <input type="text" id="ApiCredentialInput" placeholder="Api Credential"
+                        style="width: 297px; height: 48px; left: 0px; top: 0px; position: absolute; background: #FBFBFB; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25) inset; border-radius: 19px; text-align: center; font-size: 25px; font-family: Roboto; font-weight: 800; word-wrap: break-word; border-width: 0px;">
+                </div>
+                <div class="Channelnumber"
+                    style="width: 297px; height: 48px; left: 42px; top: 121px; position: absolute">
+                    <input type="text" id="ChannelNumberInput" placeholder="Channel Number"
+                        style="width: 297px; height: 48px; left: 0px; top: 0px; position: absolute; background: #FBFBFB; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25) inset; border-radius: 19px; text-align: center; font-size: 25px; font-family: Roboto; font-weight: 800; word-wrap: break-word; border-width: 0px;">
+                </div>
+
+                <button class="Submit" onclick="submitApiCredential()"
+                    style="width: 128px; height: 41px; left: 42px; top: 200px; position: absolute; background: #AFFFB7; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); border-radius: 8px; border-width: 0px; text-align: center; color: white; font-size: 25px; font-family: Roboto; font-weight: 800; word-wrap:normal">
+                    Submit
+                </button>
+
+                <button class="Reset" onclick="resetApiCredential()"
+                    style="width: 128px; height: 41px; left: 211px; top: 200px; position: absolute; background: #FFB4AF; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); border-radius: 8px; border-width: 0px; text-align: center; color: white; font-size: 25px; font-family: Roboto; font-weight: 800; word-wrap: initial">
+                    Reset
+                </button>
+
+                <div id="CredentialStatus"
+                    style="width: 50%; height: 35px; bottom: 10px; position: absolute; line-height: 35px;
+                text-align: center; margin-left: 25%; background: rgb(39, 63, 197); border-radius: 25px; font-size: 17px; font-family: Roboto;color: white; font-weight: 800; word-wrap:normal;box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);">
+                    Status : Not Connected</div>
+
+            </div>
+
+        </div>
+        <div class="NewboronTemperatureSection"
+            style="width: 381px; height: 365px; right: 15%; top: 50px;  position: absolute; max-width: 800px; ">
+            <div class="Rectangle5"
+                style="width: 381px; height: 365px; left: 0px; top: 0px; position: absolute; background: #F7F1FF; border-radius: 25px;box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);">
+            </div>
+            <div class="ThermometerAlt1"
+                style="width: 106px; height: 106px; left: 125px; top: 219px; position: absolute">
+                <img src="img/thermometer-alt.svg" style="max-width: 100%; max-height: 100%">
+            </div>
+            <div id="NewbornTemperatureValue" class="Value"
+                style="width: 196px; height: 59px; left: 94px; top: 136px; position: absolute; text-align: center; color: #555555; font-size: 48px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                - °C</div>
+            <div class="NewbornTemperature"
+                style="width: 243px; height: 97px; left: 70px; top: 24px; position: absolute; text-align: center; color: #09006E; font-size: 32px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                Newborn Temperature</div>
+        </div>
+        <div class="HeartbeatSection"
+            style="width: 381px; height: 304px; right: 15%; top: 436px; position: absolute; max-width: 800px">
+            <div class="Rectangle5"
+                style="width: 381px; height: 304px; left: 0px; top: 0px; position: absolute; background: #F7F1FF; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); border-top-left-radius: 25px; border-top-right-radius: 25px; border-bottom-right-radius: 100px; border-bottom-left-radius: 100px">
+            </div>
+            <div class="Heart1" style="width: 130px; height: 130px; left: 126px; top: 154px; position: absolute">
+                <img src="img/heart.svg" style="max-width: 100%; max-height: 100%">
+            </div>
+            <div class="NewbornHeartbeat" class="NewbornHeartbeat"
+                style="width: 298px; height: 55px; left: 52px; top: 13px; position: absolute; text-align: center; color: #09006E; font-size: 32px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                Newborn Heartbeat</div>
+            <div id="NewbornHeartbeatValue" class="Value"
+                style="width: 234px; left: 85px; top: 83px; position: absolute; text-align: center; color: #555555; font-size: 48px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                - Bpm</div>
+        </div>
+        <div class="CameraSection" style="width: 47.5%; height: 490px; left: 15%; top: 50px; position: absolute;">
+            <div class="Rectangle4"
+                style="width: 100%; height: 100%; left: 0px; top: 0px; position: absolute; background: #F7F1FF; border-radius: 25px;  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);">
+            </div>
+            <div class="Frame6" style="width: 57px; height: 57px; left: 24px; top: 15px; position: absolute">
+                <div class="Rectangle19"
+                    style="width: 57px; height: 57px; left: 0px; top: 0px; position: absolute; background: #D6CBFF; border-radius: 50px">
+                    <img src="img/camera.svg"
+                        style="width: 32px; height: 32px; margin: 10px auto 20px; display: block;">
+                </div>
+
+            </div>
+            <div class="Roboto"
+                style="width: 200px; height: 24.63px; left: 115px; top: 31.42px; position: absolute; text-align: left; color: #09006E; font-size: 36px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                CAMERA</div>
+            <div class="Rectangle20"
+                style="width: 69%; height: 70%;  margin: 10% auto 10% auto; display:block; position: relative; background: #836E9F; border-radius: 25px">
+
+                <video id="CameraVideoPlayer" width="100%" height="100%"
+                    style="display:block; position: relative; background: #836E9F; border-radius: 25px" controls>
+                    <source id="CameraSource" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        <div class="EnvironmentreadingSection"
+            style="width: 47.5%; height: 490px; left: 15%; top: 573px; position: absolute">
+            <div class="Rectangle8"
+                style="width: 886px; height: 490px; left: 0px; top: 0px; position: absolute; background: #F7F1FF; border-radius: 25px; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);">
+            </div>
+            <div class="EnviHeatIndex" style="width: 384px; height: 163px; left: 469px; top: 291px; position: absolute">
+                <div class="UnsplashUdduleEiby"
+                    style="width: 384px; height: 163px; left: 0px; top: 0px; position: absolute; background: #E7D5FF; box-shadow: 7px 7px 13px 4px rgba(102, 102, 102, 0.25); border-radius: 25px">
+                </div>
+                <div class="HeatIndex"
+                    style="width: 229px; height: 48px; left: 23.78px; top: 25.14px; position: absolute; color: #09006E; font-size: 24px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                    Heat Index</div>
+                <div id="HeatIndexValue" class="Value"
+                    style="width: 168px; height: 32px; left: 194.78px; top: 89.14px; position: absolute; text-align: right; color: #09006E; font-size: 24px; font-family: Roboto; font-weight: 500; word-wrap: break-word">
+                    -</div>
+                <div class="Heat1" style="width: 46px; height: 46px; left: 41px; top: 82px; position: absolute">
+                    <img src="img/heat.svg" style="max-width: 100%; max-height: 100%">
+                </div>
+            </div>
+            <div class="EnviHumidity" style="width: 384px; height: 163px; left: 43px; top: 291px; position: absolute">
+                <div class="UnsplashUdduleEiby"
+                    style="width: 384px; height: 163px; left: 0px; top: 0px; position: absolute; background: #E7D5FF; box-shadow: 7px 7px 13px 4px rgba(102, 102, 102, 0.25); border-radius: 25px">
+                </div>
+                <div class="Humidity"
+                    style="width: 229px; height: 48px; left: 23.78px; top: 25.14px; position: absolute; color: #09006E; font-size: 24px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                    Humidity</div>
+                <div id="HumidityValue" class="Value"
+                    style="width: 168px; height: 32px; left: 194.78px; top: 89.14px; position: absolute; text-align: right; color: #09006E; font-size: 24px; font-family: Roboto; font-weight: 500; word-wrap: break-word">
+                    - %</div>
+                <div class="Humidity1" style="width: 46px; height: 46px; left: 56px; top: 82px; position: absolute">
+                    <img src="img/humidity.svg" style="max-width: 100%; max-height: 100%">
+                </div>
+            </div>
+            <div class="Frame5" style="width: 384px; height: 163px; left: 469px; top: 100px; position: absolute">
+                <div class="UnsplashUdduleEiby"
+                    style="width: 384px; height: 163px; left: 0px; top: 0px; position: absolute; background: #E7D5FF; box-shadow: 7px 7px 13px 4px rgba(102, 102, 102, 0.25); border-radius: 25px">
+                </div>
+                <div class="Temperature"
+                    style="width: 339px; height: 48px; left: 24px; top: 25px; position: absolute; color: #09006E; font-size: 24px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                    Temperatures (Farenheit)</div>
+                <div id="TemperatureFarenheitValue" class="Value"
+                    style="width: 168px; height: 32px; left: 194.78px; top: 89.14px; position: absolute; text-align: right; color: #09006E; font-size: 24px; font-family: Roboto; font-weight: 500; word-wrap: break-word">
+                    - °F</div>
+                <div class="TemperatureHigh1"
+                    style="width: 46px; height: 46px; left: 54px; top: 82px; position: absolute">
+                    <img src="img/temperature-high.svg" style="max-width: 100%; max-height: 100%">
+                </div>
+            </div>
+            <div class="EnviTemperatures"
+                style="width: 384px; height: 163px; left: 43px; top: 100px; position: absolute">
+                <div class="UnsplashUdduleEiby"
+                    style="width: 384px; height: 163px; left: 0px; top: 0px; position: absolute; background: #E7D5FF; box-shadow: 7px 7px 13px 4px rgba(102, 102, 102, 0.25); border-radius: 25px">
+                </div>
+                <div class="Temperature"
+                    style="width: 339px; height: 48px; left: 24px; top: 25px; position: absolute; color: #09006E; font-size: 24px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                    Temperatures (Celcius)</div>
+                <div id="TemperatureCelciusValue" class="Value"
+                    style="width: 168px; height: 32px; left: 194.78px; top: 89.14px; position: absolute; text-align: right; color: #09006E; font-size: 24px; font-family: Roboto; font-weight: 500; word-wrap: break-word">
+                    - °C</div>
+                <div class="TemperatureHigh1"
+                    style="width: 46px; height: 46px; left: 54px; top: 82px; position: absolute">
+                    <img src="img/temperature-high.svg" style="max-width: 100%; max-height: 100%">
+                </div>
+            </div>
+            <div class="EnvironmentReading"
+                style="width: 804px; height: 51px; left: 49px; top: 23px; position: absolute; color: #09006E; font-size: 36px; font-family: Roboto; font-weight: 800; word-wrap: break-word">
+                Environment Reading</div>
+        </div>
+    </div>
+</body>
